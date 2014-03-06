@@ -20,6 +20,8 @@
     (define-key map (kbd "C-x C-r") #'km-reload))
   "FIXME: ")
 
+(defvar km-connection-history nil)
+
 (defun km-encode (data)
   (let ((json-array-type 'list)
         (json-object-type 'plist))
@@ -48,12 +50,26 @@
   (let* ((url (url-parse-make-urlobj
                "http" nil nil host port "/json"))
          (tabs (km-get-json url)))
-    (-filter #'km-page-tab? tabs)
-    tabs))
+    (-filter #'km-page-tab? tabs)))
 
-(defun km-connect (host port)
-  (let ((tabs (km-get-tabs host port)))
-    ))
+(defun km-tab-completion (tab)
+  (let ((title (plist-get tab :title))
+        (url (plist-get tab :url)))
+    (cons (format "%s" title) tab)))
+
+(defun km-select-tab (host port)
+  (let* ((tabs (mapcar #'km-tab-completion
+                       (km-get-tabs host port)))
+         (selection (completing-read
+                     "Tab: " tabs
+                     nil t "" 'km-connection-history (caar tabs)))
+         (tab (cdr (assoc selection tabs))))
+    (plist-get tab :webSocketDebuggerUrl)))
+
+(defun km-connect ()
+  (interactive)
+  (let ((socket-url (km-select-tab km-remote-host km-remote-port)))
+    socket-url))
 
 
 (provide 'kite-mini)
