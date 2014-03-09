@@ -3,7 +3,7 @@
 ;; Copyright (c) 2014  Tung Dao <me@tungdao.com>
 ;;
 ;; Author: Tung Dao <me@tungdao.com>
-;; URL: https://github.com/tungd/dotfiles/emacs/vendor/kite-mini.el
+;; URL: https://github.com/tungd/kite-mini.el
 ;; Keywords: webkit
 ;; Version: 0.1.0
 ;; Package-Requires: ((dash "1.5.0") (websocket "1.2"))
