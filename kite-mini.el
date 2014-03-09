@@ -1,5 +1,41 @@
-
-;; TODO: ELPA package format
+;;; kite-mini.el --- remote evaluate JavaScript in  WebKit debugger
+;;
+;; Copyright (c) 2014  Tung Dao <me@tungdao.com>
+;;
+;; Author: Tung Dao <me@tungdao.com>
+;; URL: https://github.com/tungd/dotfiles/emacs/vendor/kite-mini.el
+;; Keywords: webkit
+;; Version: 0.1.0
+;; Package-Requires: ((dash "1.5.0") (websocket "1.2"))
+;;
+;; This file is NOT part of GNU Emacs.
+;;
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;;
+;;; Commentary:
+;;
+;; Minor mode for remote evaluate JavaScript in WebKit debugger, with
+;; a little icing. Included features are:
+;; - Evaluate JavaScript (running at top level)
+;; - Modify and update external JavaScript files (live)
+;; - Reload
+;;
+;; Planned features includes:
+;; - Live reload stylesheets (without reload)
+;; - JavaScript console (REPL)
+;;
+;;; Code:
 
 (require 'url)
 (require 'json)
@@ -14,12 +50,6 @@
   :group 'kite-mini)
 
 
-(defvar km-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-x C-e") #'km-evaluate-region-or-line)
-    (define-key map (kbd "C-x C-u") #'km-update)
-    (define-key map (kbd "C-x C-r") #'km-reload))
-  "FIXME: ")
 
 (defvar km-socket nil
   "FIXME: ")
@@ -210,4 +240,32 @@
     (km-send-eval (buffer-substring-no-properties start end))))
 
 
+(defvar kite-mini-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-x C-e") #'km-evaluate-region-or-line)
+    (define-key map (kbd "C-x C-u") #'km-update)
+    (define-key map (kbd "C-x C-r") #'km-reload))
+  "FIXME: ")
+
+;;;###autoload
+(defun turn-on-kite-mini-mode ()
+  "")
+
+;;;###autoload
+(defun turn-off-kite-mini-mode ()
+  "")
+
+;;;###autoload
+(define-minor-mode kite-mini-mode
+  "Toggle Kite Mini mode."
+  :global nil
+  :group 'kite-mini
+  :init-value nil
+  :lighter ""
+  :keymap kite-mini-mode-map
+  (if kite-mini-mode
+      (turn-on-kite-mini-mode)
+    (turn-off-kite-mini-mode)))
+
 (provide 'kite-mini)
+;;; kite-mini.el ends here
