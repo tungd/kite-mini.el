@@ -39,29 +39,26 @@
 
 (require 'url)
 (require 'json)
+(require 'dash)
 (require 'websocket)
 
+
 (defcustom km-remote-host "127.0.0.1"
-  "FIXME: "
+  "Default host for connection to WebKit remote debugging API."
   :group 'kite-mini)
 
 (defcustom km-remote-port 9222
-  "FIXME: "
+  "Default port for connection to WebKit remote debugging API."
   :group 'kite-mini)
 
-
-
 (defvar km-socket nil
-  "FIXME: ")
+  "Websocket connection to WebKit remote debugging API.")
 
-(defvar km-rpc-id 0
-  "FIXME: ")
-
-(defvar km-rpc-callbacks nil
-  "FIXME: ")
-
+(defvar km-rpc-id 0)
+(defvar km-rpc-callbacks nil)
 (defvar km-rpc-scripts nil
-  "FIXME: ")
+  "List of JavaScript files available for live editing.")
+
 
 (defun km-encode (data)
   (let ((json-array-type 'list)
@@ -73,20 +70,9 @@
         (json-object-type 'plist))
     (json-read-from-string data)))
 
-(defun km-get-json (url)
-  (let* ((url-request-method "GET")
-         (url-http-attempt-keepalives nil)
-         (json-array-type 'list)
-         (json-object-type 'plist))
-    (with-current-buffer (url-retrieve-synchronously url)
-      (if (not (eq 200 (url-http-parse-response)))
-          (error "Unable to connect to host.")
-        (goto-char (+ 1 url-http-end-of-headers))
-        (json-read)))))
-
-
 (defun km-next-rpc-id ()
   (setq km-rpc-id (+ 1 km-rpc-id)))
+
 
 (defun km-register-callback (id fn)
   (let ((hook (intern (number-to-string id) km-rpc-callbacks)))
@@ -98,25 +84,26 @@
       (run-hook-with-args hook data)
       (unintern hook km-rpc-callbacks))))
 
+
 (defun km-on-open (socket)
   (message "Kite: connected."))
 
-(defun km--script-parsed (data)
+(defun km-on-close (socket)
+  (message "Kite: disconnected."))
+
+(defun km-on-script-parsed (data)
   (let ((extension? (plist-get data :isContentScript))
         (url (plist-get data :url))
         (id (plist-get data :scriptId)))
-    (unless extension?
+    (when (and url (not extension?))
       (add-to-list 'km-rpc-scripts (list :id id :url url)))))
 
-(defun km--message-added (data)
+(defun km-on-message-added (data)
   "We got `source', `level', `text' and the possition that trigger it."
   (let* ((message (plist-get data :message))
          (type (plist-get message :type))
          (text (plist-get message :text)))
     (message "Kite: [%s] %s" type text)))
-
-(defun km--callback (id result)
-  )
 
 (defun km-on-message (socket data)
   (let* ((data (km-decode (websocket-frame-payload data)))
@@ -124,9 +111,9 @@
          (params (plist-get data :params)))
     (cond
      ((string-equal method "Debugger.scriptParsed")
-      (km--script-parsed params))
+      (km-on-script-parsed params))
      ((string-equal method "Console.messageAdded")
-      (km--message-added params))
+      (km-on-message-added params))
      ;; TODO: do something usefull here, possibly great for REPL
      ((string-equal method "Console.messageRepeatCountUpdated"))
      ;; These are return messages from RPC calls, not notification
@@ -135,8 +122,30 @@
      ;; Generic fallback, only used in development
      (t (message "Kite: %s" data)))))
 
-(defun km-on-close (socket)
-  (message "Kite: disconnected."))
+(defun km-call-rpc (method &optional params)
+  (websocket-send-text
+   km-socket
+   (km-encode (list :id (km-next-rpc-id)
+                    :method method
+                    :params params))))
+
+(defun km-open-socket (url)
+  (websocket-open socket-url
+                  :on-open #'km-on-open
+                  :on-message #'km-on-message
+                  :on-close #'km-on-close))
+
+
+(defun km-get-json (url)
+  (let* ((url-request-method "GET")
+         (url-http-attempt-keepalives nil)
+         (json-array-type 'list)
+         (json-object-type 'plist))
+    (with-current-buffer (url-retrieve-synchronously url)
+      (if (not (eq 200 (url-http-parse-response)))
+          (error "Unable to connect to host.")
+        (goto-char (+ 1 url-http-end-of-headers))
+        (json-read)))))
 
 (defun km-get-tabs (host port)
   (let* ((url (url-parse-make-urlobj
@@ -160,18 +169,6 @@
          (tab (cdr (assoc selection tabs))))
     (plist-get tab :webSocketDebuggerUrl)))
 
-(defun km-call-rpc (method &optional params)
-  (websocket-send-text
-   km-socket
-   (km-encode (list :id (km-next-rpc-id)
-                    :method method
-                    :params params))))
-
-(defun km-open-socket (url)
-  (websocket-open socket-url
-                  :on-open #'km-on-open
-                  :on-message #'km-on-message
-                  :on-close #'km-on-close))
 
 (defun km-connect ()
   (interactive)
@@ -190,7 +187,6 @@
     (setq km-socket nil
           km-rpc-scripts nil)))
 
-;; Runtime.getProperties
 
 (defun km-send-eval (code)
   (km-call-rpc
@@ -198,8 +194,9 @@
    (list :expression code
          :returnByValue t)))
 
-(defun km-remove-script (id)
-  ())
+(defun km-remove-script (script)
+  (setq km-rpc-scripts
+        (delete script km-rpc-scripts)))
 
 (defun km-script-id (file)
   (let ((result nil)
@@ -209,7 +206,7 @@
             (url (plist-get script :url)))
         (when (string-equal name (file-name-base url))
           (if (not (km-script-exists? id))
-            (km-remove-script id)
+            (km-remove-script script)
             (setq id (plist-get script :id))))))))
 
 (defun km-update ()
@@ -245,19 +242,19 @@
     (define-key map (kbd "C-x C-e") #'km-evaluate-region-or-line)
     (define-key map (kbd "C-x C-u") #'km-update)
     (define-key map (kbd "C-x C-r") #'km-reload))
-  "FIXME: ")
+  "Keymap for Kite Mini mode.")
 
 ;;;###autoload
 (defun turn-on-kite-mini-mode ()
-  "")
+  "Turn on Kite Mini mode.")
 
 ;;;###autoload
 (defun turn-off-kite-mini-mode ()
-  "")
+  "Turn off Kite Mini mode.")
 
 ;;;###autoload
 (define-minor-mode kite-mini-mode
-  "Toggle Kite Mini mode."
+  "Minor mode for interact with WebKit remote debugging API."
   :global nil
   :group 'kite-mini
   :init-value nil
