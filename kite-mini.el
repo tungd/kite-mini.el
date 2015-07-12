@@ -239,9 +239,10 @@
 
 (defvar kite-mini-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-x C-e") #'km-evaluate-region-or-line)
-    (define-key map (kbd "C-x C-u") #'km-update)
-    (define-key map (kbd "C-x C-r") #'km-reload))
+    (prog1 map
+      (define-key map (kbd "C-x C-e") #'km-evaluate-region-or-line)
+      (define-key map (kbd "C-x C-u") #'km-update)
+      (define-key map (kbd "C-x C-r") #'km-reload)))
   "Keymap for Kite Mini mode.")
 
 ;;;###autoload
