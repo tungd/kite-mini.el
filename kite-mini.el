@@ -130,7 +130,7 @@
                     :params params))))
 
 (defun km-open-socket (url)
-  (websocket-open socket-url
+  (websocket-open url
                   :on-open #'km-on-open
                   :on-message #'km-on-message
                   :on-close #'km-on-close))
