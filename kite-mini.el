@@ -1,4 +1,4 @@
-;;; kite-mini.el --- remote evaluate JavaScript in  WebKit debugger
+;;; kite-mini.el --- Remotely evaluate JavaScript in the WebKit debugger
 ;;
 ;; Copyright (c) 2014  Tung Dao <me@tungdao.com>
 ;;
