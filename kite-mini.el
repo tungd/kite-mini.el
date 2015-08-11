@@ -6,7 +6,7 @@
 ;; URL: https://github.com/tungd/kite-mini.el
 ;; Keywords: webkit
 ;; Version: 0.1.0
-;; Package-Requires: ((dash "1.5.0") (websocket "1.2"))
+;; Package-Requires: ((dash "2.11.0") (websocket "1.5"))
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
