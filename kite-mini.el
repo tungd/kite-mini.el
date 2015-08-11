@@ -1,11 +1,11 @@
 ;;; kite-mini.el --- Remotely evaluate JavaScript in the WebKit debugger
 ;;
-;; Copyright (c) 2014  Tung Dao <me@tungdao.com>
+;; Copyright (c) 2014, 2015  Tung Dao <me@tungdao.com>
 ;;
 ;; Author: Tung Dao <me@tungdao.com>
 ;; URL: https://github.com/tungd/kite-mini.el
 ;; Keywords: webkit
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Package-Requires: ((dash "2.11.0") (websocket "1.5"))
 ;;
 ;; This file is NOT part of GNU Emacs.
