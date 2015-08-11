@@ -130,11 +130,10 @@
                            :params params))))
 
 (defun kite-mini-open-socket (url)
-  (websocket-open socket-url
+  (websocket-open url
                   :on-open #'kite-mini-on-open
                   :on-message #'kite-mini-on-message
                   :on-close #'kite-mini-on-close))
-
 
 (defun kite-mini-get-json (url)
   (let* ((url-request-method "GET")
