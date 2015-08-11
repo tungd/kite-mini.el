@@ -71,3 +71,4 @@ GPL
 [kite]: https://github.com/jscheid/kite
 [wooky]: https://github.com/katspaugh/wooky.el
 [realgud]: https://github.com/rocky/emacs-dbgr
+[skewer]: https://github.com/skeeto/skewer-mode
