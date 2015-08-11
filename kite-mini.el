@@ -95,7 +95,7 @@
   (let ((extension? (plist-get data :isContentScript))
         (url (plist-get data :url))
         (id (plist-get data :scriptId)))
-    (when (and url (not extension?))
+    (when (and (not extension?) (not (string-equal "" url)))
       (add-to-list 'kite-mini-rpc-scripts (list :id id :url url)))))
 
 (defun kite-mini-on-message-added (data)
@@ -126,8 +126,8 @@
   (websocket-send-text
    kite-mini-socket
    (kite-mini-encode (list :id (kite-mini-next-rpc-id)
-                    :method method
-                    :params params))))
+                           :method method
+                           :params params))))
 
 (defun kite-mini-open-socket (url)
   (websocket-open socket-url
@@ -174,7 +174,7 @@
   (interactive)
   (kite-mini-disconnect)
   (let* ((socket-url (kite-mini-select-tab kite-mini-remote-host
-                                    kite-mini-remote-port)))
+                                           kite-mini-remote-port)))
     (setq kite-mini-socket (kite-mini-open-socket socket-url))
     (kite-mini-call-rpc "Console.enable")
     (kite-mini-call-rpc "Debugger.enable")
@@ -199,15 +199,10 @@
         (delete script kite-mini-rpc-scripts)))
 
 (defun kite-mini-script-id (file)
-  (let ((result nil)
-        (name (file-name-base file)))
-    (dolist (script kite-mini-rpc-scripts result)
-      (let ((id (plist-get script :id))
-            (url (plist-get script :url)))
-        (when (string-equal name (file-name-base url))
-          (if (not (kite-mini-script-exists? id))
-            (kite-mini-remove-script script)
-            (setq id (plist-get script :id))))))))
+  (let* ((name (file-name-nondirectory file))
+         (script (--find (string-suffix-p name (plist-get it :url))
+                         kite-mini-rpc-scripts)))
+    (when script (plist-get script :id))))
 
 (defun kite-mini-update ()
   (interactive)
