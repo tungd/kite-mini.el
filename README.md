@@ -25,7 +25,7 @@ wrote this.
 # Installation
 
 * Install the package via [MELPA](http://melpa.milkbox.net/), or add the package's
-  directory to `load-path`
+  directory to `load-path`.
 
 Note: I test this only on Emacs 24.1 and above. Pull requests for supporting
 other versions are welcomed.
@@ -47,7 +47,18 @@ Require the package
 
 Connect:
 
-    <M-x> km-connect
+    <M-x> kite-mini-connect
+
+Note: if you open the Devtools console in Chrome, the tabs will not appear
+for selection.
+
+* Key bindings in kite-mini-mode buffer
+
+| Key     | Function                          | Description                                                                                                                                     |
+|---------+-----------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------|
+| C-x C-e | kite-mini-evaluate-region-or-line | Send active region or current line to Chrome                                                                                                    |
+| C-x C-u | kite-mini-update                  | Reload the JS source in the tab. This method is able to update closure and event handlers similar to what you can do in the dev tools debugger. |
+| C-x C-r | kite-mini-reload                  | Refresh the page                                                                                                                                |
 
 # Credits
 
