@@ -24,7 +24,7 @@ wrote this.
 
 # Installation
 
-* Install the package via [MELPA](http://melpa.milkbox.net/), or add the package's
+* Install the package via [MELPA](https://melpa.org/), or add the package's
   directory to `load-path`.
 
 Note: I test this only on Emacs 24.1 and above. Pull requests for supporting
