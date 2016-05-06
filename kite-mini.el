@@ -95,7 +95,7 @@
   (let ((extension? (plist-get data :isContentScript))
         (url (plist-get data :url))
         (id (plist-get data :scriptId)))
-    (when (and (not extension?) (not (string-equal "" url)))
+    (when (and (eq extension? :json-false) (not (string-equal "" url)))
       (add-to-list 'kite-mini-rpc-scripts (list :id id :url url)))))
 
 (defun kite-mini-on-message-added (data)
@@ -122,12 +122,15 @@
      ;; Generic fallback, only used in development
      (t (message "Kite: %s" data)))))
 
-(defun kite-mini-call-rpc (method &optional params)
-  (websocket-send-text
-   kite-mini-socket
-   (kite-mini-encode (list :id (kite-mini-next-rpc-id)
-                           :method method
-                           :params params))))
+(defun kite-mini-call-rpc (method &optional params callback)
+  (let ((id (kite-mini-next-rpc-id)))
+    (when callback
+      (kite-mini-register-callback id callback))
+    (websocket-send-text
+     kite-mini-socket
+     (kite-mini-encode (list :id id
+                             :method method
+                             :params params)))))
 
 (defun kite-mini-open-socket (url)
   (websocket-open url
@@ -187,11 +190,12 @@
           kite-mini-rpc-scripts nil)))
 
 
-(defun kite-mini-send-eval (code)
+(defun kite-mini-send-eval (code &optional callback)
   (kite-mini-call-rpc
    "Runtime.evaluate"
    (list :expression code
-         :returnByValue t)))
+         :returnByValue t)
+   callback))
 
 (defun kite-mini-remove-script (script)
   (setq kite-mini-rpc-scripts
@@ -234,9 +238,9 @@
 (defvar kite-mini-mode-map
   (let ((map (make-sparse-keymap)))
     (prog1 map
-      (define-key map (kbd "C-x C-e") #'kite-mini-evaluate-region-or-line)
-      (define-key map (kbd "C-x C-u") #'kite-mini-update)
-      (define-key map (kbd "C-x C-r") #'kite-mini-reload)))
+      (define-key map (kbd "C-c C-c") #'kite-mini-evaluate-region-or-line)
+      (define-key map (kbd "C-c C-k") #'kite-mini-update)
+      (define-key map (kbd "C-c C-r") #'kite-mini-reload)))
   "Keymap for Kite Mini mode.")
 
 ;;;###autoload
