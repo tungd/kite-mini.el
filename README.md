@@ -56,13 +56,15 @@ for selection.
 
 | Key     | Function                          | Description                                                                                                                                     |
 |---------|-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| C-x C-e | kite-mini-evaluate-region-or-line | Send active region or current line to Chrome                                                                                                    |
-| C-x C-u | kite-mini-update                  | Reload the JS source in the tab. This method is able to update closure and event handlers similar to what you can do in the dev tools debugger. |
-| C-x C-r | kite-mini-reload                  | Refresh the page                                                                                                                                |
+| C-c C-c | kite-mini-evaluate-region-or-line | Send active region or current line to Chrome                                                                                                    |
+| C-c C-k | kite-mini-update                  | Reload the JS source in the tab. This method is able to update closure and event handlers similar to what you can do in the dev tools debugger. |
+| C-c C-r | kite-mini-reload                  | Refresh the page                                                                                                                                |
 
 # Credits
 
-About half of the code is taken from Kite.
+- About half of the code is taken from Kite.
+- `kite-mini-console` by [TatriX][https://github.com/TatriX]
+- Bug fixes by various contributors.
 
 # License
 
