@@ -49,6 +49,11 @@ Connect:
 
     <M-x> kite-mini-connect
 
+Console (with context sensitive autocompletion via `TAB`):
+
+    <M-x> kite-mini-console
+
+
 Note: if you open the Devtools console in Chrome, the tabs will not appear
 for selection.
 
@@ -63,7 +68,7 @@ for selection.
 # Credits
 
 - About half of the code is taken from Kite.
-- `kite-mini-console` by [TatriX][https://github.com/TatriX]
+- `kite-mini-console` by [TatriX](https://github.com/TatriX)
 - Bug fixes by various contributors.
 
 # License
